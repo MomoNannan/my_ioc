@@ -1,6 +1,6 @@
 package com.github.limo.myioc.context;
 
-import com.github.limo.myioc.core.impl.DefaultBeanFactory;
+import com.github.limo.myioc.core.impl.DefaultListableBeanFactory;
 import com.github.limo.myioc.exception.BeanConfFileNotFoundException;
 import com.github.limo.myioc.exception.IOCRuntimeException;
 import com.github.limo.myioc.model.DefaultBeanDefinition;
@@ -17,7 +17,7 @@ import java.util.List;
  * @date 2020/8/2
  * @time 12:33
  */
-public class JsonApplicationContext extends DefaultBeanFactory {
+public class JsonApplicationContext extends DefaultListableBeanFactory {
 
     /** bean 配置文件路径 */
     private String confFilePath;

@@ -54,3 +54,44 @@ Bean 的初始化我们想要交给第三方来维护, 再需要使用时直接�
 
 为了方便用户使用, 我们对 BeanFactory 进行封装, 而我们是基于 `Json` 格式的, 因此称其为 `JsonApplicationContext`. 在创建其对象时, 会对整个容器初始化 .
 
+
+
+## `LitableBeanFactory` 的实现
+
+`LitableBeanFactory` 是 `BeanFactory`  的扩展, 它的目的是获取某一类型的全部 `Bean` 实例, 它根据类型枚举其所有的 `Bean` 实例, 而不用被客户端请求时根据名称一个一个查找.
+
+### 组件设计
+
+### `LitableBeanFactory` 与其实现类 `DefaultListableBeanFactory`
+
+本版本中提供了泛型版本的 `getBeans(Class<T> type)`.  既然 `LitableBeanFactory`  是 `BeanFactory` 的扩展, 很容易想到前者继承自后者, 而其实现类 `DefaultListableBeanFactory` 自然也继承自 `DefaultBeanFactory`, 只实现 `LitableBeanFactory`  中接口即可.
+
+
+
+### 如何根据 Type 获取 all bean instances?
+
+有了 `BeanFactory` 的经验, 我们很容易想到使用 Map 来缓存这种关系. 然而, 如果想要根据 `type` 获取全部的 `bean names`, 则又不方便了. 但是我们知道, 可以通过 `beanMap` 根据 `name` 获取对应的 `bean` 实例. 所以我们取中庸之道, 缓存 `type` 与 `all bean names` 的映射, 这样既可以根据 type 直接获取 `bean names`, 也可以方便地获取 `bean instances`.
+
+由于我们能够根据 `BeanDefinition` 获取到 Class, 所以这种映射关系在注册 bean `definitions` 时一并缓存即可.
+
+
+
+### 心得
+
+1.  在阅读 Spring 源码时, 发现了一个不错的编程习惯:
+
+    对于超类的方法, 一律以 super 引用; 对于自身的域, 一律以 this 引用, 自身的方法, 直接引用.
+
+    ```java
+      // org.springframework.beans.factory.support.DefaultListableBeanFactory#destroySingletons
+      @Override
+    	public void destroySingletons() {
+    		super.destroySingletons();
+    		this.manualSingletonNames.clear();
+    		clearByTypeCache();
+    	}
+    ```
+
+    
+
+2.  

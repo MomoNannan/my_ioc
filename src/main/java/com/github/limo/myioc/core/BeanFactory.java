@@ -25,4 +25,27 @@ public interface BeanFactory {
      * @return
      */
     <T> T getBean(String beanName, final Class<T> requiredType);
+
+    /**
+     * 是否包含指定名称的 bean
+     * @param beanName
+     * @return
+     */
+    boolean containsBean(String beanName);
+
+    /**
+     * bean 名称对应的类型与指定的类型是否一致
+     * @param beanName
+     * @param type
+     * @return
+     */
+    boolean isTypeMatch(String beanName, Class<?> type);
+
+    /**
+     * 根据 bean 名称获取类型 -- Class 对象
+     * @param beanName
+     * @return
+     */
+    Class<?> getType(String beanName);
+
 }

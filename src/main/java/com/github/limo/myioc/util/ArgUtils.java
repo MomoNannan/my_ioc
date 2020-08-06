@@ -20,7 +20,7 @@ public class ArgUtils {
         }
     }
 
-    public static void nonNull(Object argName, String argVal) {
+    public static void nonNull(Object argName, Object argVal) {
         if (Objects.isNull(argVal)) {
             throw new IllegalArgumentException(String.format("%s cannot be null", argName));
         }

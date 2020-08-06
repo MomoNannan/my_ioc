@@ -4,10 +4,14 @@ import com.github.limo.myioc.core.BeanFactory;
 import com.github.limo.myioc.exception.BeanDefinitionNotFoundException;
 import com.github.limo.myioc.exception.IOCRuntimeException;
 import com.github.limo.myioc.model.BeanDefinition;
+import com.github.limo.myioc.util.ArgUtils;
 import com.github.limo.myioc.util.ClassUtils;
+import com.google.common.collect.Sets;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -29,6 +33,11 @@ public class DefaultBeanFactory implements BeanFactory {
      */
     private Map<String, Object> beanMap = new ConcurrentHashMap<>();
 
+    /**
+     * 以类型 ( class 对象 ) 为键, 存储其对应的全部 bean 名称的 Map. 有了名称的全集, 通过 beanMap 即可获取全部的 bean 实例.
+     */
+    private Map<Class<?>, Set<String>> allBeanNamesByType = new ConcurrentHashMap<>();
+
 
     /**
      * 注册 BeanDefinition
@@ -37,6 +46,35 @@ public class DefaultBeanFactory implements BeanFactory {
      */
     protected void registerBeanDefinition(String beanName, final BeanDefinition beanDefinition) {
         beanDefinitionMap.put(beanName, beanDefinition);
+
+        // 缓存 type - all bean names
+        // 1. get Class by bean definition.
+        final Class type = getType(beanDefinition);
+
+        // 2. Cache class and all of its bean instances
+        Set<String> allBeanNames = allBeanNamesByType.get(type);
+        if (CollectionUtils.isEmpty(allBeanNames)) {
+            allBeanNames = Sets.newHashSet();
+            allBeanNamesByType.put(type, allBeanNames);
+        }
+        allBeanNames.add(beanName);
+    }
+
+    private Class getType(BeanDefinition beanDefinition) {
+        String className = beanDefinition.getClassName();
+        return ClassUtils.getClass(className);
+    }
+
+    /**
+     * 获取类型对应的全部 bean 名称.
+     * 不暴露 field -- allBeanNamesByType, 而是以方法的形式对外暴露. 是一种更加安全的手法.
+     * @param type
+     * @param <T>
+     * @return
+     */
+    public <T> Set<String> getBeanNames(Class<T> type) {
+        ArgUtils.nonNull("type", type);
+        return allBeanNamesByType.get(type);
     }
 
     @Override
@@ -75,6 +113,24 @@ public class DefaultBeanFactory implements BeanFactory {
         }
         T result = (T) getBean(beanName);
         return result;
+    }
+
+    @Override
+    public boolean containsBean(String beanName) {
+        return beanMap.containsKey(beanName);
+    }
+
+    @Override
+    public boolean isTypeMatch(String beanName, Class<?> type) {
+        Class<?> typeCached = getType(beanName);
+        return type == typeCached;
+    }
+
+    @Override
+    public Class<?> getType(String beanName) {
+        ArgUtils.notBlank("beanName", beanName);
+        Object bean = getBean(beanName);
+        return bean.getClass();
     }
 
     private <T> String classTypeNotMatchMsg(Class<T> requiredType, Object bean) {

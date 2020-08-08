@@ -15,7 +15,7 @@ import java.util.Objects;
 public class ArgUtils {
 
     public static void notBlank(String argName, String argVal) {
-        if (StringUtils.isBlank(argName)) {
+        if (StringUtils.isBlank(argVal)) {
             throw new IllegalArgumentException(String.format("%s cannot be empty", argName));
         }
     }

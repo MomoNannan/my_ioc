@@ -42,7 +42,7 @@ public class JsonUtils {
     }
 
     public static void main(String[] args) {
-        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("beans.json");
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("singleton/singleton-beans.json");
         String fileContent = FileUtils.getFileContent(in);
         List<DefaultBeanDefinition> users = deserializeArray(fileContent, DefaultBeanDefinition.class);
         System.out.println(users);

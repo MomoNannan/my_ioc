@@ -32,5 +32,19 @@ public interface BeanDefinition {
      */
     void setClassName(String className);
 
+    /**
+     * 获取 bean 范围
+     * @return
+     */
+    String getScope();
 
+    void setScope(String scope);
+
+    /**
+     * Bean 是否是延迟加载
+     * @return
+     */
+    boolean isLazyInit();
+
+    void setLazyInit(boolean lazyInit);
 }

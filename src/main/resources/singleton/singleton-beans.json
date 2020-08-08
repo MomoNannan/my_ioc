@@ -1,0 +1,8 @@
+[
+  {
+    "name": "user",
+    "className": "com.github.limo.myioc.test.model.User",
+    "scope": "singleton",
+    "lazyInit": "true"
+  }
+]

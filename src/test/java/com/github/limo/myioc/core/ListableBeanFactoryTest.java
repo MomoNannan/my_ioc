@@ -16,6 +16,7 @@ import java.util.List;
 public class ListableBeanFactoryTest {
 
     public static final ListableBeanFactory BEAN_FACTORY = new JsonApplicationContext("beans-for-listable.json");
+
     @Test
     public void testGetBeans() {
         Class<User> userClass = User.class;

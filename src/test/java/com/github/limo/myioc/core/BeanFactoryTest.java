@@ -44,4 +44,22 @@ public class BeanFactoryTest {
         Class<?> clazz = BEAN_FACTORY.getType("user");
         Assertions.assertTrue(BEAN_FACTORY.isTypeMatch("user", clazz));
     }
+
+    @Test
+    public void testSingleton() {
+        BeanFactory beanFactory = new JsonApplicationContext("singleton/singleton-beans.json");
+        User user1 = beanFactory.getBean("user", User.class);
+        User user2 = beanFactory.getBean("user", User.class);
+        Assertions.assertSame(user1, user2);
+    }
+
+    @Test
+    public void testPrototype() {
+        BeanFactory beanFactory = new JsonApplicationContext("singleton/prototype-beans.json");
+        User user1 = beanFactory.getBean("user", User.class);
+        User user2 = beanFactory.getBean("user", User.class);
+        Assertions.assertNotSame(user1, user2);
+    }
+
+
 }

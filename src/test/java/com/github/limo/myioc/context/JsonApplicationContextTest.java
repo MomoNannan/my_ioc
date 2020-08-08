@@ -19,7 +19,7 @@ public class JsonApplicationContextTest {
 
     @Test
     public void testReadContent() throws FileNotFoundException {
-        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("beans.json");
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("singleton/singleton-beans.json");
         String fileContent = FileUtils.getFileContent(in);
         Assertions.assertEquals(true, StringUtils.isNotBlank(fileContent));
     }
@@ -27,7 +27,7 @@ public class JsonApplicationContextTest {
     @Test
     public void testJsonApplicationContext() {
         // 1. 根据文件名称创建 JsonApplicationContext 对象.
-        String confFileName = "beans.json";
+        String confFileName = "singleton/singleton-beans.json";
         JsonApplicationContext jsonApplicationContext = new JsonApplicationContext(confFileName);
 
         // 2. get bean by name.

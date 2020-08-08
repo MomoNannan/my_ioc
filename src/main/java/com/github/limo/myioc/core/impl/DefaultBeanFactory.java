@@ -1,5 +1,6 @@
 package com.github.limo.myioc.core.impl;
 
+import com.github.limo.myioc.constant.enums.Scope;
 import com.github.limo.myioc.core.BeanFactory;
 import com.github.limo.myioc.exception.BeanDefinitionNotFoundException;
 import com.github.limo.myioc.exception.IOCRuntimeException;
@@ -44,23 +45,56 @@ public class DefaultBeanFactory implements BeanFactory {
      * @param beanName
      * @param beanDefinition
      */
-    protected void registerBeanDefinition(String beanName, final BeanDefinition beanDefinition) {
-        beanDefinitionMap.put(beanName, beanDefinition);
+    protected void registerBeanDefinition(final String beanName,
+                                          final BeanDefinition beanDefinition) {
+        // 一 缓存 beanDefinition
+        this.beanDefinitionMap.put(beanName, beanDefinition);
 
-        // 缓存 type - all bean names
+        // 二 缓存 type - all bean names
+        registerBeanNamesByType(beanName, beanDefinition);
+
+        // 三 初始化所有单例且非延迟加载的 bean 并缓存
+        if (!beanDefinition.isLazyInit()
+                && Scope.isSingleton(beanDefinition.getScope())) {
+            registerSingleton(beanDefinition);
+        }
+    }
+
+
+    private void registerBeanNamesByType(final String beanName,
+                                         final BeanDefinition beanDefinition) {
         // 1. get Class by bean definition.
         final Class type = getType(beanDefinition);
 
         // 2. Cache class and all of its bean instances
-        Set<String> allBeanNames = allBeanNamesByType.get(type);
+        Set<String> allBeanNames = this.allBeanNamesByType.get(type);
         if (CollectionUtils.isEmpty(allBeanNames)) {
             allBeanNames = Sets.newHashSet();
-            allBeanNamesByType.put(type, allBeanNames);
+            this.allBeanNamesByType.put(type, allBeanNames);
         }
         allBeanNames.add(beanName);
     }
 
-    private Class getType(BeanDefinition beanDefinition) {
+    /**
+     * ( 当容器初始化时 ) 初始化 ( 非延迟加载的 ) 单例对象.
+     * @param beanDefinition
+     */
+    private Object registerSingleton(final BeanDefinition beanDefinition) {
+        // 创建单例的流程
+        // 1. 如果已创建过, 直接返回.
+        if (this.beanMap.containsKey(beanDefinition.getName())) {
+            return this.beanMap.get(beanDefinition.getName());
+        }
+
+        // 2. 根据 BeanDefinition 创建 Bean 实例.
+        Object result = createBean(beanDefinition);
+
+        // 3. 缓存到 beanMap 中
+        this.beanMap.put(beanDefinition.getName(), result);
+        return result;
+    }
+
+    private Class getType(final BeanDefinition beanDefinition) {
         String className = beanDefinition.getClassName();
         return ClassUtils.getClass(className);
     }
@@ -72,40 +106,33 @@ public class DefaultBeanFactory implements BeanFactory {
      * @param <T>
      * @return
      */
-    public <T> Set<String> getBeanNames(Class<T> type) {
+    public <T> Set<String> getBeanNames(final Class<T> type) {
         ArgUtils.nonNull("type", type);
-        return allBeanNamesByType.get(type);
+        return this.allBeanNamesByType.get(type);
     }
 
     @Override
     public Object getBean(String beanName) {
-        // 本版本中, 默认以单例模式创建. 若是多例模式, 则直接创建对象, 而不缓存.
-        // 1. 如果已创建过, 直接返回.
-        if (beanMap.containsKey(beanName)) {
-            return beanMap.get(beanName);
-        }
-
-        // 2. 若未创建过, 获取其 BeanDefinition.
-        BeanDefinition beanDefinition = beanDefinitionMap.get(beanName);
+        ArgUtils.notBlank("beanName", beanName);
+        // 1. 如果是多例, 直接创建并返回.
+        BeanDefinition beanDefinition = this.beanDefinitionMap.get(beanName);
         if (Objects.isNull(beanDefinition)) {
             throw new BeanDefinitionNotFoundException();
         }
-
-        // 3. 根据 BeanDefinition 创建 Bean 实例.
-        Object result = createBean(beanDefinition);
-
-        // 4. 缓存到 beanMap 中
-        beanMap.put(beanName, result);
-        return result;
+        if (!Scope.isSingleton(beanDefinition.getScope())) {
+            return createBean(beanDefinition);
+        }
+        // 2. 此时确定为单例, 走单例的创建流程
+        return registerSingleton(beanDefinition);
     }
 
-    private Object createBean(BeanDefinition beanDefinition) {
+    private Object createBean(final BeanDefinition beanDefinition) {
         Class clazz = ClassUtils.getClass(beanDefinition.getClassName());
         return ClassUtils.newInstance(clazz);
     }
 
     @Override
-    public <T> T getBean(String beanName, Class<T> requiredType) {
+    public <T> T getBean(final String beanName, final Class<T> requiredType) {
         Object bean = getBean(beanName);
         // 判断类型是否匹配
         if (bean.getClass() != requiredType) {
@@ -117,11 +144,11 @@ public class DefaultBeanFactory implements BeanFactory {
 
     @Override
     public boolean containsBean(String beanName) {
-        return beanMap.containsKey(beanName);
+        return this.beanMap.containsKey(beanName);
     }
 
     @Override
-    public boolean isTypeMatch(String beanName, Class<?> type) {
+    public boolean isTypeMatch(final String beanName, final Class<?> type) {
         Class<?> typeCached = getType(beanName);
         return type == typeCached;
     }

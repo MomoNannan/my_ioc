@@ -12,6 +12,11 @@ public class DefaultBeanDefinition implements BeanDefinition {
 
     private String className;
 
+    /** bean 范围*/
+    private String scope;
+
+    /** bean 是否是延迟加载 */
+    private boolean lazyInit;
 
     @Override
     public String getName() {
@@ -33,4 +38,23 @@ public class DefaultBeanDefinition implements BeanDefinition {
         this.className = className;
     }
 
+    @Override
+    public String getScope() {
+        return scope;
+    }
+
+    @Override
+    public void setScope(String scope) {
+        this.scope = scope;
+    }
+
+    @Override
+    public boolean isLazyInit() {
+        return lazyInit;
+    }
+
+    @Override
+    public void setLazyInit(boolean lazyInit) {
+        this.lazyInit = lazyInit;
+    }
 }

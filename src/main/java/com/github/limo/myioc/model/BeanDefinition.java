@@ -1,5 +1,7 @@
 package com.github.limo.myioc.model;
 
+import com.github.limo.myioc.constant.enums.Scope;
+
 /**
  * 该接口用来描述 Bean 的定义
  * @author 顾慎为
@@ -8,6 +10,8 @@ package com.github.limo.myioc.model;
  * @time 11:07
  */
 public interface BeanDefinition {
+
+    String DEFAULT_SCOPE = Scope.SINGLETON.getScope();
 
     /**
      * 获取 bean 配置的名称
@@ -40,6 +44,8 @@ public interface BeanDefinition {
 
     void setScope(String scope);
 
+    void setDefaultScope();
+
     /**
      * Bean 是否是延迟加载
      * @return
@@ -47,4 +53,6 @@ public interface BeanDefinition {
     boolean isLazyInit();
 
     void setLazyInit(boolean lazyInit);
+
+
 }

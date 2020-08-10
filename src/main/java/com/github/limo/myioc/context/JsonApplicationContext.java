@@ -3,9 +3,11 @@ package com.github.limo.myioc.context;
 import com.github.limo.myioc.core.impl.DefaultListableBeanFactory;
 import com.github.limo.myioc.exception.BeanConfFileNotFoundException;
 import com.github.limo.myioc.exception.IOCRuntimeException;
+import com.github.limo.myioc.model.BeanDefinition;
 import com.github.limo.myioc.model.DefaultBeanDefinition;
 import com.github.limo.myioc.util.FileUtils;
 import com.github.limo.myioc.util.JsonUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 import java.util.List;
@@ -48,7 +50,18 @@ public class JsonApplicationContext extends DefaultListableBeanFactory {
         // 2. 对每个 bean 配置都解析成 bean definition 并缓存
         List<DefaultBeanDefinition> beanDefinitions = JsonUtils.deserializeArray(content, DefaultBeanDefinition.class);
         for (DefaultBeanDefinition item : beanDefinitions) {
+            fillDefaultValue(item);
             registerBeanDefinition(item.getName(), item);
+        }
+    }
+
+    /**
+     * 填充默认的属性. 如: 设置默认 scope 为 singleton
+     * @param beanDefinition
+     */
+    private void fillDefaultValue(BeanDefinition beanDefinition) {
+        if (StringUtils.isBlank(beanDefinition.getScope())) {
+            beanDefinition.setDefaultScope();
         }
     }
 

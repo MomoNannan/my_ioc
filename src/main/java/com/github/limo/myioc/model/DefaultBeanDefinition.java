@@ -49,6 +49,11 @@ public class DefaultBeanDefinition implements BeanDefinition {
     }
 
     @Override
+    public void setDefaultScope() {
+        this.scope = DEFAULT_SCOPE;
+    }
+
+    @Override
     public boolean isLazyInit() {
         return lazyInit;
     }

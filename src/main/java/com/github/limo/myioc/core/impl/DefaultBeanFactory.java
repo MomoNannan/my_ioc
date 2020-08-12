@@ -5,11 +5,17 @@ import com.github.limo.myioc.core.BeanFactory;
 import com.github.limo.myioc.exception.BeanDefinitionNotFoundException;
 import com.github.limo.myioc.exception.IOCRuntimeException;
 import com.github.limo.myioc.model.BeanDefinition;
+import com.github.limo.myioc.support.lifecycle.DisposableBean;
+import com.github.limo.myioc.support.lifecycle.destroy.DefaultPreDestroyBean;
+import com.github.limo.myioc.support.lifecycle.init.DefaultPostConstructBean;
 import com.github.limo.myioc.util.ArgUtils;
 import com.github.limo.myioc.util.ClassUtils;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -22,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2020/8/2
  * @time 11:15
  */
-public class DefaultBeanFactory implements BeanFactory {
+public class DefaultBeanFactory implements BeanFactory, DisposableBean {
 
     /**
      * 用来存储 bean 定义的 Map. key: bean name; val: bean definition
@@ -39,6 +45,10 @@ public class DefaultBeanFactory implements BeanFactory {
      */
     private Map<Class<?>, Set<String>> allBeanNamesByType = new ConcurrentHashMap<>();
 
+    /**
+     * 保存 bean 实例 - BeanDefinition Pair 的列表. 销毁时使用.
+     */
+    private List<Pair<Object, BeanDefinition>> instanceBeanDefinitionPairs = Lists.newArrayList();
 
     /**
      * 注册 BeanDefinition
@@ -128,7 +138,15 @@ public class DefaultBeanFactory implements BeanFactory {
 
     private Object createBean(final BeanDefinition beanDefinition) {
         Class clazz = ClassUtils.getClass(beanDefinition.getClassName());
-        return ClassUtils.newInstance(clazz);
+        Object newBean = ClassUtils.newInstance(clazz);
+
+        // 1. 在 Bean 构建后这一节点创建后处理 Bean, 执行相关初始化操作.
+        DefaultPostConstructBean postConstructBean = new DefaultPostConstructBean(newBean, beanDefinition);
+        postConstructBean.initialize();
+
+        // 2. 将 bean, beanDefin 这一映射关系缓存, 便于销毁时使用.
+        instanceBeanDefinitionPairs.add(Pair.of(newBean, beanDefinition));
+        return newBean;
     }
 
     @Override
@@ -163,5 +181,18 @@ public class DefaultBeanFactory implements BeanFactory {
     private <T> String classTypeNotMatchMsg(Class<T> requiredType, Object bean) {
         return String.format("Class type not match: requiredType: %s, actually: %s",
                 requiredType, bean.getClass());
+    }
+
+    /**
+     * 用来在程序正常退出或 JVM 退出时对注册了事件的 Bean 执行的销毁方法.
+     */
+    @Override
+    public void destroy() {
+        System.out.println("Destroy all beans start...");
+        for (Pair<Object, BeanDefinition> pair : instanceBeanDefinitionPairs) {
+            DisposableBean disposableBean = new DefaultPreDestroyBean(pair.getLeft(), pair.getRight());
+            disposableBean.destroy();
+        }
+        System.out.println("Destroy all beans end...");
     }
 }

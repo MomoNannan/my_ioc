@@ -54,5 +54,12 @@ public interface BeanDefinition {
 
     void setLazyInit(boolean lazyInit);
 
+    void setInitMethod(String initMethod);
 
+    String getInitMethod();
+
+
+    void setDestroyMethod(String destroyMethod);
+
+    String getDestroyMethod();
 }

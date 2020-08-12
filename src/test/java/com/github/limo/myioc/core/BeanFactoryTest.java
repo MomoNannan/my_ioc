@@ -61,5 +61,4 @@ public class BeanFactoryTest {
         Assertions.assertNotSame(user1, user2);
     }
 
-
 }

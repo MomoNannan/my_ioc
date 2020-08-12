@@ -12,11 +12,18 @@ public class DefaultBeanDefinition implements BeanDefinition {
 
     private String className;
 
+
     /** bean 范围*/
     private String scope;
 
     /** bean 是否是延迟加载 */
     private boolean lazyInit;
+
+    /** 自定义的初始化方法名称 */
+    private String initMethod;
+
+    /** 自定义的销毁方法名称 */
+    private String destroyMethod;
 
     @Override
     public String getName() {
@@ -61,5 +68,25 @@ public class DefaultBeanDefinition implements BeanDefinition {
     @Override
     public void setLazyInit(boolean lazyInit) {
         this.lazyInit = lazyInit;
+    }
+
+    @Override
+    public void setInitMethod(String initMethod) {
+        this.initMethod = initMethod;
+    }
+
+    @Override
+    public String getInitMethod() {
+        return initMethod;
+    }
+
+    @Override
+    public void setDestroyMethod(String destroyMethod) {
+        this.destroyMethod = destroyMethod;
+    }
+
+    @Override
+    public String getDestroyMethod() {
+        return destroyMethod;
     }
 }

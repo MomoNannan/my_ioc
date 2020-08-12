@@ -1,6 +1,10 @@
 package com.github.limo.myioc.test.model;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 /**
  * @author 顾慎为
@@ -9,14 +13,29 @@ import lombok.Data;
  * @time 12:50
  */
 @Data
+@Slf4j
 public class User {
 
     private Long id;
 
     private String name;
 
+    /** 1. Male. 2. Female */
     private Integer sex;
 
     private Integer age;
+
+    @PostConstruct
+    public void init() {
+        System.out.println("User PostConstruct init start...");
+        System.out.println("User PostConstruct init...");
+        setSex(1);
+        System.out.println("User PostConstruct init end...");
+    }
+
+    @PreDestroy
+    public void destroy() {
+        System.out.println("User releases some resources....");
+    }
 
 }

@@ -53,8 +53,8 @@ public class ClassUtils {
      * @param annotationClass
      * @return
      */
-    public static Optional<Method> findFirstMethodAnnotatedWith(final Class<?> aClass,
-                                                                final Class<? extends Annotation> annotationClass) {
+    public static Optional<Method> findFirstOptionalMethodAnnotatedWith(final Class<?> aClass,
+                                                                        final Class<? extends Annotation> annotationClass) {
         List<Method> methods = findMethodsAnnotatedWith(aClass, annotationClass);
         if (!methods.isEmpty()) {
             return Optional.ofNullable(methods.get(0));
@@ -76,15 +76,32 @@ public class ClassUtils {
                      .collect(Collectors.toList());
     }
 
-    public static boolean containsNoParams(Method method) {
-        return method.getParameterCount() == 0;
-    }
-
-    public static Optional<Method> findMethodByName(Class<?> aClass, String methodName) {
+    /**
+     * 该方法认为 aClass 中可能存在名为 methodName 的方法, 所以返回值是 Optional 类型的.
+     * @param aClass
+     * @param methodName
+     * @return
+     */
+    public static Optional<Method> findOptionalMethodByName(Class<?> aClass, String methodName) {
         try {
             return Optional.of(aClass.getMethod(methodName));
         } catch (NoSuchMethodException e) {
             return Optional.empty();
+        }
+    }
+
+    /**
+     * 该方法认为 aClass 中一定存在名为 methodName 的方法, 如果不存在, 则属于使用错误, 抛出异常.
+     * @param aClass
+     * @param destroyMethod
+     * @param paramTypes
+     * @return
+     */
+    public static Method findMethodByName(Class<?> aClass, String destroyMethod, Class<?> ... paramTypes) {
+        try {
+            return aClass.getMethod(destroyMethod, paramTypes);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
         }
     }
 }

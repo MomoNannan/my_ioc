@@ -28,7 +28,7 @@ public class User {
     @PostConstruct
     public void init() {
         System.out.println("User PostConstruct init start...");
-        System.out.println("User PostConstruct init...");
+        System.out.println("User PostConstruct initializing...");
         setSex(1);
         System.out.println("User PostConstruct init end...");
     }

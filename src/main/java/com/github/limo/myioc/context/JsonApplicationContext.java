@@ -47,9 +47,5 @@ public class JsonApplicationContext extends AbstractApplicationContext {
     private String beanConfFileNotFoundMsg() {
         return String.format("bean conf file not found by path: %s", confFilePath);
     }
-
-    @Override
-    public void destroy() {
-        super.destroy();
-    }
+    
 }

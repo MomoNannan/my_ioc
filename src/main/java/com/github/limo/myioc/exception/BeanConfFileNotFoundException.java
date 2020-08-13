@@ -8,11 +8,18 @@ package com.github.limo.myioc.exception;
  */
 public class BeanConfFileNotFoundException extends IOCRuntimeException {
 
-    public BeanConfFileNotFoundException(Exception e) {
-        super(e);
+    public BeanConfFileNotFoundException() {
     }
 
-    public BeanConfFileNotFoundException(String reason) {
-        super(reason);
+    public BeanConfFileNotFoundException(Throwable cause) {
+        super(cause);
+    }
+
+    public BeanConfFileNotFoundException(String msg) {
+        super(msg);
+    }
+
+    public BeanConfFileNotFoundException(String msg, Throwable cause) {
+        super(msg, cause);
     }
 }

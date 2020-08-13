@@ -8,10 +8,19 @@ package com.github.limo.myioc.exception;
  */
 public class IOCRuntimeException extends RuntimeException {
 
-    public IOCRuntimeException(Exception e) {
+    public IOCRuntimeException() {
     }
 
-    public IOCRuntimeException(String reason) {
-
+    public IOCRuntimeException(Throwable cause) {
+        super(cause);
     }
+
+    public IOCRuntimeException(String cause) {
+        super(cause);
+    }
+
+    public IOCRuntimeException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
+
 }

@@ -1,15 +1,14 @@
 package com.github.limo.myioc.support.lifecycle.destroy;
 
-import com.github.limo.myioc.exception.IOCRuntimeException;
 import com.github.limo.myioc.model.BeanDefinition;
 import com.github.limo.myioc.support.lifecycle.DisposableBean;
+import com.github.limo.myioc.util.ArgUtils;
 import com.github.limo.myioc.util.ClassUtils;
+import com.github.limo.myioc.util.ReflectMethodUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PreDestroy;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Optional;
 
 /**
  * @author 顾慎为
@@ -24,6 +23,8 @@ public class DefaultPreDestroyBean implements DisposableBean {
     private BeanDefinition beanDefinition;
 
     public DefaultPreDestroyBean(Object instance, BeanDefinition beanDefinition) {
+        ArgUtils.nonNull("instance", instance);
+        ArgUtils.nonNull("beanDefinition", beanDefinition);
         this.instance = instance;
         this.beanDefinition = beanDefinition;
     }
@@ -41,32 +42,10 @@ public class DefaultPreDestroyBean implements DisposableBean {
     }
 
     private void preDestroy() {
-        // 1. Find the method annotated with @PreDestory.
-        Optional<Method> optionalMethod =
-                ClassUtils.findFirstMethodAnnotatedWith(instance.getClass(), PreDestroy.class);
-        if (!optionalMethod.isPresent()) {
-            return;
-        }
-
-        // 2. Check whether the method has no params
-        if (!ClassUtils.containsNoParams(optionalMethod.get())) {
-            throw new IOCRuntimeException(methodAnnotatedWithPreDestroyIllegalArgumentsExceptionMsg(optionalMethod.get()));
-        }
-
-        // 3. If exists, invoke it.
-        try {
-            optionalMethod.get().invoke(instance);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new IOCRuntimeException(methodAnnotatedWithPreDestroyInvocationExceptionMsg(optionalMethod.get(), e));
-        }
-    }
-
-    private String methodAnnotatedWithPreDestroyInvocationExceptionMsg(Method method, ReflectiveOperationException e) {
-        return String.format("The method %s annotated with @PreDestroy invocation exception: %s", method, e);
-    }
-
-    private String methodAnnotatedWithPreDestroyIllegalArgumentsExceptionMsg(Method method) {
-        return String.format("The method %s of instance %s annotated with @PreDestroy should contain no params", method, instance);
+        // 1. Check whether there is a method annotated with @PreDestroy.
+        // 2. If yes, invoke it as a no-arg method.
+        ClassUtils.findFirstOptionalMethodAnnotatedWith(instance.getClass(), PreDestroy.class)
+                  .ifPresent(method -> ReflectMethodUtils.invokeNoArgMethod(method, instance));
     }
 
     private void disposableBean() {
@@ -80,17 +59,10 @@ public class DefaultPreDestroyBean implements DisposableBean {
         if (StringUtils.isBlank(beanDefinition.getDestroyMethod())) {
             return;
         }
-
-        // 2. Check whether instance has defined the method
-        Optional<Method> optionalMethod = ClassUtils.findMethodByName(instance.getClass(), beanDefinition.getDestroyMethod());
+        // 2. Find the method by name.
+        Method method = ClassUtils.findMethodByName(instance.getClass(), beanDefinition.getDestroyMethod());
 
         // 3. Invoke it
-        optionalMethod.ifPresent(method -> {
-            try {
-                method.invoke(instance);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new IOCRuntimeException(e);
-            }
-        });
+        ReflectMethodUtils.invokeNoArgMethod(method, instance);
     }
 }

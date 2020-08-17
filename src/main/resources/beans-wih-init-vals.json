@@ -1,0 +1,25 @@
+[
+  {
+    "name": "user",
+    "className": "com.github.limo.myioc.test.model.User",
+    "factoryMethod": "newInstance"
+  },
+  {
+    "name": "vipUser",
+    "className": "com.github.limo.myioc.test.model.VipUser",
+    "constructorArgs": [
+      {
+        "name": "user",
+        "ref" : "user",
+        "type": "",
+        "val" : ""
+      },
+      {
+        "name": "level",
+        "ref" : "",
+        "type": "java.lang.Integer",
+        "val" : "3"
+      }
+    ]
+  }
+]

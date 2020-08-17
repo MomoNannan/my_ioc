@@ -48,6 +48,32 @@ public class ClassUtils {
     }
 
     /**
+     * 判断 aClass 中是否存在注解了 annotationClass 的方法.
+     * @param aClass
+     * @param annotationClass
+     * @return
+     */
+    public static boolean hasMethodAnnotatedWith(final Class<?> aClass,
+                                                 final Class<? extends Annotation> annotationClass) {
+        return findFirstOptionalMethodAnnotatedWith(aClass, annotationClass).isPresent();
+    }
+
+    /**
+     * 获取 aClass 类型中第一个声明了 annotationClass 注解的方法. 该方法认为类中一定存在这样的方法, 否则抛出异常.
+     * @param aClass
+     * @param annotationClass
+     * @return
+     */
+    public static Method findFirstMethodAnnotatedWith(final Class<?> aClass,
+                                                      final Class<? extends Annotation> annotationClass) {
+        List<Method> methods = findMethodsAnnotatedWith(aClass, annotationClass);
+        if (methods.isEmpty()) {
+            throw new RuntimeException(aClass.getName() + " has no methods annotated with" + annotationClass.getName());
+        }
+        return methods.get(0);
+    }
+
+    /**
      * 获取 aClass 类型中第一个声明了 annotationClass 注解的方法.
      * @param aClass
      * @param annotationClass

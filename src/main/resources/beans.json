@@ -1,6 +1,6 @@
 [
   {
     "name": "user",
-    "className": "com.github.limo.myioc.test.model.User",
+    "className": "com.github.limo.myioc.test.model.User"
   }
 ]

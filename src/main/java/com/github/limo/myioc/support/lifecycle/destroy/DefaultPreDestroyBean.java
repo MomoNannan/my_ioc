@@ -45,7 +45,7 @@ public class DefaultPreDestroyBean implements DisposableBean {
         // 1. Check whether there is a method annotated with @PreDestroy.
         // 2. If yes, invoke it as a no-arg method.
         ClassUtils.findFirstOptionalMethodAnnotatedWith(instance.getClass(), PreDestroy.class)
-                  .ifPresent(method -> ReflectMethodUtils.invokeNoArgMethod(method, instance));
+                  .ifPresent(method -> ReflectMethodUtils.invokeNoArgsMethod(method, instance));
     }
 
     private void disposableBean() {
@@ -63,6 +63,6 @@ public class DefaultPreDestroyBean implements DisposableBean {
         Method method = ClassUtils.findMethodByName(instance.getClass(), beanDefinition.getDestroyMethod());
 
         // 3. Invoke it
-        ReflectMethodUtils.invokeNoArgMethod(method, instance);
+        ReflectMethodUtils.invokeNoArgsMethod(method, instance);
     }
 }

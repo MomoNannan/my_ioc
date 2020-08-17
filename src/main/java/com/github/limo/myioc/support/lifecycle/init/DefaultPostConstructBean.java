@@ -53,7 +53,7 @@ public class DefaultPostConstructBean implements InitializingBean {
         // 2. 校验 -- @PostConstruct 注明的方法必须是无参的.
         // 3. 执行
         ClassUtils.findFirstOptionalMethodAnnotatedWith(instance.getClass(), PostConstruct.class)
-                  .ifPresent(method -> ReflectMethodUtils.invokeNoArgMethod(method, instance));
+                  .ifPresent(method -> ReflectMethodUtils.invokeNoArgsMethod(method, instance));
     }
 
     /**
@@ -77,7 +77,7 @@ public class DefaultPostConstructBean implements InitializingBean {
         Method method = ClassUtils.findMethodByName(instance.getClass(), beanDefinition.getInitMethod());
 
         // 3. Invoke it
-        ReflectMethodUtils.invokeNoArgMethod(method, instance);
+        ReflectMethodUtils.invokeNoArgsMethod(method, instance);
 
     }
 

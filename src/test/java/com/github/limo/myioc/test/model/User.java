@@ -1,5 +1,6 @@
 package com.github.limo.myioc.test.model;
 
+import com.github.limo.myioc.support.lifecycle.create.FactoryMethod;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,4 +39,12 @@ public class User {
         System.out.println("User releases some resources....");
     }
 
+    @FactoryMethod
+    public static User newInstance() {
+        User user = new User();
+        user.setName("叮当");
+        user.setSex(2);
+        user.setAge(21);
+        return user;
+    }
 }

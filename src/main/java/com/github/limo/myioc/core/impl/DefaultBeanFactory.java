@@ -6,6 +6,7 @@ import com.github.limo.myioc.exception.BeanDefinitionNotFoundException;
 import com.github.limo.myioc.exception.IOCRuntimeException;
 import com.github.limo.myioc.model.BeanDefinition;
 import com.github.limo.myioc.support.lifecycle.DisposableBean;
+import com.github.limo.myioc.support.lifecycle.create.DefaultNewInstanceBean;
 import com.github.limo.myioc.support.lifecycle.destroy.DefaultPreDestroyBean;
 import com.github.limo.myioc.support.lifecycle.init.DefaultPostConstructBean;
 import com.github.limo.myioc.util.ArgUtils;
@@ -138,13 +139,14 @@ public class DefaultBeanFactory implements BeanFactory, DisposableBean {
 
     private Object createBean(final BeanDefinition beanDefinition) {
         Class clazz = ClassUtils.getClass(beanDefinition.getClassName());
-        Object newBean = ClassUtils.newInstance(clazz);
+        // 1. 创建 Bean 并设置初始值
+        Object newBean = DefaultNewInstanceBean.getInstance().newInstance(this, beanDefinition);
 
-        // 1. 在 Bean 构建后这一节点创建后处理 Bean, 执行相关初始化操作.
+        // 2. 在 Bean 构建后这一节点创建后处理 Bean, 执行相关初始化操作.
         DefaultPostConstructBean postConstructBean = new DefaultPostConstructBean(newBean, beanDefinition);
         postConstructBean.initialize();
 
-        // 2. 将 bean, beanDefin 这一映射关系缓存, 便于销毁时使用.
+        // 3. 将 bean, beanDefin 这一映射关系缓存, 便于销毁时使用.
         instanceBeanDefinitionPairs.add(Pair.of(newBean, beanDefinition));
         return newBean;
     }
@@ -188,11 +190,9 @@ public class DefaultBeanFactory implements BeanFactory, DisposableBean {
      */
     @Override
     public void destroy() {
-        System.out.println("Destroy all beans start...");
         for (Pair<Object, BeanDefinition> pair : instanceBeanDefinitionPairs) {
             DisposableBean disposableBean = new DefaultPreDestroyBean(pair.getLeft(), pair.getRight());
             disposableBean.destroy();
         }
-        System.out.println("Destroy all beans end...");
     }
 }

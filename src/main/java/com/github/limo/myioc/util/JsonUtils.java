@@ -1,13 +1,11 @@
 package com.github.limo.myioc.util;
 
-import com.github.limo.myioc.model.DefaultBeanDefinition;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import lombok.experimental.UtilityClass;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,10 +39,9 @@ public class JsonUtils {
         return result;
     }
 
-    public static void main(String[] args) {
-        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("singleton/singleton-beans.json");
-        String fileContent = FileUtils.getFileContent(in);
-        List<DefaultBeanDefinition> users = deserializeArray(fileContent, DefaultBeanDefinition.class);
-        System.out.println(users);
+    public static <T> T deserialize(String jsonStr, Class<T> typeClass) {
+        Gson gson = new Gson();
+        return gson.fromJson(jsonStr, typeClass);
     }
+
 }

@@ -1,4 +1,10 @@
-package com.github.limo.myioc.model;
+package com.github.limo.myioc.model.impl;
+
+import com.github.limo.myioc.model.BeanDefinition;
+import com.github.limo.myioc.model.ConstructorArgBeanDefinition;
+import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.List;
 
 /**
  * @author 顾慎为
@@ -8,10 +14,11 @@ package com.github.limo.myioc.model;
  */
 public class DefaultBeanDefinition implements BeanDefinition {
 
+    /** bean 名称 */
     private String name;
 
+    /** bean 所属类的类路径 */
     private String className;
-
 
     /** bean 范围*/
     private String scope;
@@ -24,6 +31,12 @@ public class DefaultBeanDefinition implements BeanDefinition {
 
     /** 自定义的销毁方法名称 */
     private String destroyMethod;
+
+    /** 自定义的用于为 Bean 设置初值的 factoryMethod 的名称*/
+    private String factoryMethod;
+
+    /** 构造器参数列表 */
+    private List<ConstructorArgBeanDefinition> constructorArgs;
 
     @Override
     public String getName() {
@@ -89,4 +102,31 @@ public class DefaultBeanDefinition implements BeanDefinition {
     public String getDestroyMethod() {
         return destroyMethod;
     }
+
+    @Override
+    public void setFactoryMethod(String factoryMethod) {
+        this.factoryMethod = factoryMethod;
+    }
+
+    @Override
+    public String getFactoryMethod() {
+        return factoryMethod;
+    }
+
+    @Override
+    public List<ConstructorArgBeanDefinition> getConstructorArgs() {
+        return constructorArgs;
+    }
+
+    @Override
+    public void setConstructorArgs(List<ConstructorArgBeanDefinition> constructorArgs) {
+        this.constructorArgs = constructorArgs;
+    }
+
+
+    @Override
+    public boolean constructorArgsExist() {
+        return CollectionUtils.isNotEmpty(getConstructorArgs());
+    }
+
 }

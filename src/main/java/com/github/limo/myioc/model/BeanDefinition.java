@@ -2,6 +2,8 @@ package com.github.limo.myioc.model;
 
 import com.github.limo.myioc.constant.enums.Scope;
 
+import java.util.List;
+
 /**
  * 该接口用来描述 Bean 的定义
  * @author 顾慎为
@@ -58,8 +60,17 @@ public interface BeanDefinition {
 
     String getInitMethod();
 
-
     void setDestroyMethod(String destroyMethod);
 
     String getDestroyMethod();
+
+    void setFactoryMethod(String factoryMethod);
+
+    String getFactoryMethod();
+
+    void setConstructorArgs(List<ConstructorArgBeanDefinition> constructorArgs);
+
+    List<ConstructorArgBeanDefinition> getConstructorArgs();
+
+    boolean constructorArgsExist();
 }

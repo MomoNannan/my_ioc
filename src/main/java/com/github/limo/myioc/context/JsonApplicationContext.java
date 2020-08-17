@@ -1,11 +1,11 @@
 package com.github.limo.myioc.context;
 
+import com.alibaba.fastjson.JSON;
 import com.github.limo.myioc.exception.BeanConfFileNotFoundException;
 import com.github.limo.myioc.exception.IOCRuntimeException;
 import com.github.limo.myioc.model.BeanDefinition;
-import com.github.limo.myioc.model.DefaultBeanDefinition;
+import com.github.limo.myioc.model.impl.DefaultBeanDefinition;
 import com.github.limo.myioc.util.FileUtils;
-import com.github.limo.myioc.util.JsonUtils;
 
 import java.io.InputStream;
 import java.util.List;
@@ -40,7 +40,7 @@ public class JsonApplicationContext extends AbstractApplicationContext {
         }
 
         // 2. 对每个 bean 配置都解析成 bean definition 并缓存
-        return JsonUtils.deserializeArray(content, DefaultBeanDefinition.class);
+        return JSON.parseArray(content, DefaultBeanDefinition.class);
     }
 
 
